@@ -1,0 +1,51 @@
+pipeline{
+    agent any
+    stages {
+    stage('Checkout from SCM') {
+        steps {
+        git branch: "develop",
+        credentialsId: 'jenkins_credts',
+        url: 'ssh://git@github.com/myapps2/myapp2.git'
+        }
+    }
+    
+    stage('Get ENV file') {
+        steps {
+        dir('ENV') {
+            git branch: 'develop',
+            credentialsId: 'jenkins_credts',
+            url: 'ssh://git@gihub.com/myapps2/myapp2.git'
+        }
+        sh 'yes|cp -rf ENV/.env .env'
+        sh 'rm -rf ENV'
+        }}
+    
+    stage('Copy to remote') {
+        steps{
+        sshagent(credentials : ['md5summofcredts_here']) {
+            // copy new code and install dependencies
+            sh """
+            rsync --exclude '.git' -a -e "ssh -o StrictHostKeyChecking=no" ./ yourmachineuser@yourserver2:/var/www/myapp2/
+            """
+        }}
+    }
+    stage('Building') {
+        steps{
+        sshagent(credentials : ['ssh-agents-credts-here']) {
+            // run build
+            sh """
+            ssh -o StrictHostKeyChecking=no yourmachineuser@yourserver2 bash -c "'
+            cd /var/www/myapp2
+            ## ПРИМЕР ПХП
+            composer install
+            php artisan --version
+            php artisan passport:install 
+            php artisan cache:clear
+            php artisan config:clear
+            php artisan route:clear
+            '"
+            """
+        }}
+    }
+}
+}

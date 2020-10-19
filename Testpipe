@@ -8,7 +8,7 @@ pipeline {
                 git url: 'git@github.com:pluhin/sa.it-academy.by.git'
             }
         }
-        stage('Checking repository'){
+        stage('Checking  repository'){
             steps { 
                 sh "ls -l"
             }
