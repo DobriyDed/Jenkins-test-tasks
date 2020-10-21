@@ -1,5 +1,5 @@
 
-Starting Nmap 6.40 ( http://nmap.org ) at 2020-10-21 10:20 UTC
+Starting Nmap 6.40 ( http://nmap.org ) at 2020-10-21 10:23 UTC
 Nmap scan report for 192.168.100.1
 Nmap scan report for gitlab.a-ks.ru (192.168.100.2)
 Nmap scan report for 192.168.100.4
@@ -9,14 +9,14 @@ Nmap scan report for 192.168.100.62
 Nmap scan report for 192.168.100.63
 Nmap scan report for 192.168.100.64
 Nmap scan report for 192.168.100.61
-Nmap done: 256 IP addresses (9 hosts up) scanned in 1.60 seconds
+Nmap done: 256 IP addresses (9 hosts up) scanned in 3.79 seconds
 
    Speedtest by Ookla
 
      Server: MGTS - Moscow (id = 6827)
         ISP: Moscow City Telephone Network
-    Latency:     3.98 ms   (0.17 ms jitter)
-   Download:   258.08 Mbps (data used: 116.8 MB)                               
-     Upload:   471.19 Mbps (data used: 444.0 MB)                               
+    Latency:     4.45 ms   (0.12 ms jitter)
+   Download:   517.46 Mbps (data used: 696.7 MB)                               
+     Upload:   473.34 Mbps (data used: 226.4 MB)                               
 Packet Loss:     0.0%
- Result URL: https://www.speedtest.net/result/c/953617d0-254e-488b-bb34-deec629a83e0
+ Result URL: https://www.speedtest.net/result/c/0c47ba6b-358a-4027-9712-91d391deaa5c
