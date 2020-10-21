@@ -1,0 +1,79 @@
+pipeline {
+    agent { label 'node01' }
+    options {
+        buildDiscarder(logRotator(numToKeepStr:'5'))
+        ansiColor('xterm')
+    }
+    environment {
+        NODE_NAME = "${env.NODE_NAME}"
+    }
+    parameters {
+        string(name: 'NetworkToScan', defaultValue: '192.168.100.0/24', description: 'Subnet to scan: ')
+        string(name: 'GitRepo', defaultValue: 'github.com:DobriyDed/Jenkins-test-tasks.git', description: 'My repository (Clone with SSH)')
+        credentials(name: 'GitCredsToUse', defaultValue: 'JenkinsPriv', description: 'Credentials to use for github repo', credentialType: "SSH username with private key", required: true )
+    }
+    stages {
+        stage('Pull repo from GitHub') {
+            steps {
+                deleteDir()
+                git credentialsId: "$GitCredsToUse",
+                branch: 'test',
+                url: 'git@$GitRepo'
+            }
+        }        
+        stage('parallel') {
+            parallel {
+                stage('Check online hosts via nmap') { 
+                    steps {                         
+                        sh '''
+                            echo "We run at : $NODE_NAME"
+                            sudo yum -y install nmap 
+                            sudo  nmap -sn $NetworkToScan | sed '/MAC/d' | sed '/Host/d' >> ip_scan
+                            sudo yum remove -y nmap
+                        '''
+                    }
+                }
+                stage('Check Internet speed by Speedtest-cli') {
+                    steps { 
+                        sh '''
+                            sudo yum install wget
+                            wget https://bintray.com/ookla/rhel/rpm -O bintray-ookla-rhel.repo
+                            sudo mv bintray-ookla-rhel.repo /etc/yum.repos.d/
+                            # Other non-official binaries will conflict with Speedtest CLI
+                            # Example how to remove using yum
+                            # rpm -qa | grep speedtest | xargs -I {} sudo yum -y remove {}
+                            sudo yum install speedtest -y
+                            speedtest --accept-license
+                            speedtest >> ip_scan
+                            sudo yum remove speedtest -y
+                            //cat ip_scan
+                        '''
+                    }
+                }    
+            }
+        }
+        stage('Push files to the GitHub') {
+            steps {
+                sh '''
+                    git config --global user.email "jenkins@localhost"
+                    git config --global user.name "Jenkins"
+                    #cd jenkins
+                    [ -d log ] || mkdir log
+                    mv ip_scan log/ip_scan
+                    git add --all
+                    git commit -m "Autopush from Jenkins"
+                    git push origin test
+                '''
+                deleteDir()
+            }
+        }
+   }
+    post {
+        success {
+            telegramSend(message: 'Ололо! Заработало!', chatId: -468988289)
+        }
+        failure {
+            telegramSend(message: 'Всё сломалося, начальника!', chatId: -468988289)
+        }
+    }
+}
